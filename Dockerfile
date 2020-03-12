@@ -13,4 +13,4 @@ USER app
 WORKDIR /app
 
 COPY . .
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "--reload", "--bind", "0.0.0.0:8080", "yocotto_url.application:setup_app()"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "yocotto_url.application:setup_app()"]

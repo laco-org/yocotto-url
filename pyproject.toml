@@ -10,6 +10,10 @@ connexion = "^2.6.0"
 swagger_ui_bundle = "^0.0.6"
 injector = "^0.18.3"
 Flask-Injector = "^0.12.3"
+python-dotenv = "^0.12.0"
+structlog = "^20.1.0"
+python-json-logger = "^0.1.11"
+redis = "^3.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

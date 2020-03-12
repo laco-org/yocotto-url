@@ -7,6 +7,6 @@ services:
     volumes:
       - .:/app
     environment:
-      REDIS_HOST: redis
+      ENVFILE_PATH: redis.env
   redis:
     image: "redis:alpine"

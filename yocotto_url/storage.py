@@ -1,4 +1,7 @@
 import abc
+from dataclasses import asdict
+import json
+import redis
 from .datatypes import ShortenedUrl
 
 
@@ -74,4 +77,38 @@ class InMemoryStorage(Storage):
     def _next_url_id(self):
         url_id = base_encode(self._counter)
         self._counter += 1
+        return url_id
+
+
+class RedisStorage(Storage):
+    def __init__(self, env: dict):
+        self._redis = redis.Redis(
+            host=env.get("YOCOTTO_URL_REDIS_HOST", "redis"),
+            port=int(env.get("YOCOTTO_URL_REDIS_PORT", 6379)),
+            db=0,
+        )
+
+    def get(self, url_id: str) -> ShortenedUrl:
+        return ShortenedUrl(**json.loads(self._redis.get(url_id)))
+
+    def put(self, shortened_url: ShortenedUrl) -> ShortenedUrl:
+        url_id = shortened_url.url_id
+        res = self._redis.setnx(url_id, json.dumps(asdict(shortened_url)))
+        if res == 1:
+            return shortened_url
+        else:
+            raise UrlAlreadyExists(f"The url_id: {url_id} already taken.")
+
+    def save(self, long_url: str, retry_count=5) -> ShortenedUrl:
+        if retry_count == 0:
+            raise StorageError("Failed to save URL.")
+        try:
+            shortened_url = ShortenedUrl(url_id=self._next_url_id(), long_url=long_url)
+            self.put(shortened_url)
+            return shortened_url
+        except UrlAlreadyExists:
+            return self.save(long_url, retry_count=retry_count - 1)
+
+    def _next_url_id(self):
+        url_id = base_encode(self._redis.incr("yocotto_url_counter"))
         return url_id

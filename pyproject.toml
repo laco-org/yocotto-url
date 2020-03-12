@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "yocotto_url"
+version = "0.1.0"
+description = "An open source Restful url shortener in Python"
+authors = ["László Andrási <mail@laszloandrasi.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+connexion = "^2.6.0"
+swagger_ui_bundle = "^0.0.6"
+injector = "^0.18.3"
+Flask-Injector = "^0.12.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = {version = "^19.10b0", allow-prereleases = true}
+pylint = "^2.4.4"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

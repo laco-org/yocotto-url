@@ -1,0 +1,60 @@
+openapi: "3.0.2"
+info:
+  title: YocottoUrl
+  version: "1.0"
+servers:
+  - url: http://localhost:8080/
+paths:
+  /_/health:
+    get:
+      operationId: yocotto_url.operations.health
+      responses:
+        "200":
+          description: OK
+  /{url_id}:
+    parameters:
+      - in: path
+        name: url_id
+        schema:
+          type: string
+        required: true
+    get:
+      operationId: yocotto_url.operations.get_short_url
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+    put:
+      operationId: yocotto_url.operations.put_short_url
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                long_url:
+                  type: string
+              example:
+                long_url: "http://llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk/"
+      responses:
+        "200":
+          description: OK
+  /:
+    post:
+      operationId: yocotto_url.operations.save_short_url
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                long_url:
+                  type: string
+              example:
+                long_url: "http://llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch.co.uk/"
+      responses:
+        "200":
+          description: OK

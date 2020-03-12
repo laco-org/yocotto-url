@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: yocotto-url
+  name: yocotto-url
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: yocotto-url
+  template:
+    metadata:
+      labels:
+        app: yocotto-url
+    spec:
+      containers:
+        - image: laco/yocotto-url:v0.1.0-rpi
+          name: yocotto-url
+          env:
+            - name: YOCOTTO_URL_STORAGE
+              value: "redis"
+            - name: YOCOTTO_URL_REDIS_HOST
+              value: "redis-cluster.default.svc.cluster.local"

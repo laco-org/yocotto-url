@@ -1,7 +1,7 @@
 import abc
 from dataclasses import asdict
 import json
-import redis
+from redis.sentinel import Sentinel
 from .datatypes import ShortenedUrl
 
 
@@ -82,18 +82,30 @@ class InMemoryStorage(Storage):
 
 class RedisStorage(Storage):
     def __init__(self, env: dict):
-        self._redis = redis.Redis(
-            host=env.get("YOCOTTO_URL_REDIS_HOST", "redis"),
-            port=int(env.get("YOCOTTO_URL_REDIS_PORT", 6379)),
-            db=0,
+        self._redis_service_name = env.get("YOCOTTO_URL_REDIS_SERVICE_NAME", "mymaster")
+        self._redis_socket_timeout = float(
+            env.get("YOCOTTO_URL_REDIS_SOCKET_TIMEOUT", 0.1)
+        )
+        self._redis_sentinel = Sentinel(
+            json.loads(
+                env.get("YOCOTTO_URL_REDIS_SENTINELS", '[["redis-sentinel", 26379]]')
+            )
+        )
+
+        self._redis_master = self._redis_sentinel.master_for(
+            self._redis_service_name, socket_timeout=self._redis_socket_timeout
+        )
+
+        self._redis_slave = self._redis_sentinel.slave_for(
+            self._redis_service_name, socket_timeout=self._redis_socket_timeout
         )
 
     def get(self, url_id: str) -> ShortenedUrl:
-        return ShortenedUrl(**json.loads(self._redis.get(url_id)))
+        return ShortenedUrl(**json.loads(self._redis_slave.get(url_id)))
 
     def put(self, shortened_url: ShortenedUrl) -> ShortenedUrl:
         url_id = shortened_url.url_id
-        res = self._redis.setnx(url_id, json.dumps(asdict(shortened_url)))
+        res = self._redis_master.setnx(url_id, json.dumps(asdict(shortened_url)))
         if res == 1:
             return shortened_url
         else:
@@ -110,5 +122,5 @@ class RedisStorage(Storage):
             return self.save(long_url, retry_count=retry_count - 1)
 
     def _next_url_id(self):
-        url_id = base_encode(self._redis.incr("yocotto_url_counter"))
+        url_id = base_encode(self._redis_master.incr("yocotto_url_counter"))
         return url_id

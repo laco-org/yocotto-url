@@ -32,4 +32,3 @@ def setup_app():
     app.add_api("yocotto_url.yaml")
     FlaskInjector(app.app, [configure_storage])
     return app
-

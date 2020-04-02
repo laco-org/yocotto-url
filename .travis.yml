@@ -2,11 +2,20 @@ language: python
 python:
   - "3.8"
 
+services:
+  - docker
+
 before_install:
   - pip install poetry
+  - docker-compose pull
+  - docker-compose build
 
 install:
   - poetry install
 
 script:
-  - poetry run pytest
+  - poetry run pytest tests/
+  - poetry run pytest tests_e2e/ -v
+
+after_script:
+  - docker-compose down

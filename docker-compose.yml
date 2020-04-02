@@ -9,4 +9,8 @@ services:
     environment:
       ENVFILE_PATH: redis.env
   redis:
-    image: "redis:alpine"
+    image: bitnami/redis:5.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+  redis-sentinel:
+    image: bitnami/redis-sentinel:5.0

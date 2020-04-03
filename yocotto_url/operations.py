@@ -30,3 +30,8 @@ def put_short_url(url_id: str, body: dict, storage: Storage):
 def save_short_url(body: dict, storage: Storage):
     long_url = body.get("long_url")
     return asdict(storage.save(long_url))
+
+
+def starting_page():
+    template = env.get_template("starting_page.html")
+    return template.render()

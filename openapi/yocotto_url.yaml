@@ -43,6 +43,16 @@ paths:
         "200":
           description: OK
   /:
+    get:
+      operationId: yocotto_url.operations.starting_page
+      responses:
+        "200":
+          description: OK
+          content:
+            text/html:
+              schema:
+                type: string
+                example: pong
     post:
       operationId: yocotto_url.operations.save_short_url
       requestBody:
